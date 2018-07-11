@@ -21,12 +21,38 @@ public class InvoiceHelper {
     @Autowired
     InvoiceRepository invoiceRepository;
 
-    public AddInvoiceResponse addInvoice(List<Invoice> invoices){
+    private void addInvoiceValidation(List<Invoice> invoices) throws Exception{
+
+        for(Invoice invoice : invoices){
+            if(invoice.getVatRate()<1l){
+                throw new Exception("vat rate can not be less than 1");
+            }
+            /*if(invoice.getId()<1l){
+                throw new Exception("id can not be less than 1");
+            }*/
+            for(LineItem lineItem : invoice.getLineItemList()){
+                if(lineItem.getQuantity()<1l){
+                    throw new Exception("quantity can not be less than 1");
+                }
+                if(lineItem.getUnitPrice().compareTo(new BigDecimal(0))<0){
+                    throw new Exception("price can not be less than 0");
+                }
+                /*if(lineItem.getId()<1l){
+                    throw new Exception("id can not be less than 1");
+                }*/
+            }
+        }
+    }
+
+    public AddInvoiceResponse addInvoice(List<Invoice> invoices) throws Exception{
+
+        addInvoiceValidation(invoices);
         return new AddInvoiceResponse(invoiceRepository.saveAll(invoices));
     }
 
-    public DetailedInvoice getInvoiceById(long invoiceId){
+    public DetailedInvoice getInvoiceById(long invoiceId)throws Exception{
 
+        getInvoiceByIdValidation(invoiceId);
         Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
         return createDetailedInvoice(invoice.get());
     }
@@ -69,7 +95,7 @@ public class InvoiceHelper {
 
             detailedLineItemList.add(detailedLineItem);
         }
-        //vatAmount = invoiceSubtotal.multiply(invoiceSubtotal.divide(new BigDecimal(invoice.getVatRate()),roundingScale, RoundingMode.HALF_UP)).setScale(roundingScale, RoundingMode.CEILING);
+
         vatPercentage = invoice.getVatRate()/Double.valueOf(100);
         vatAmount = invoiceSubtotal.multiply(new BigDecimal(vatPercentage)).setScale( roundingScale, RoundingMode.HALF_UP);
         detailedInvoice.setInvoice(invoice);
@@ -79,5 +105,11 @@ public class InvoiceHelper {
         detailedInvoice.setDetailedLineItemList(detailedLineItemList);
 
         return detailedInvoice;
+    }
+
+    private void getInvoiceByIdValidation(long invoiceId) throws Exception{
+        if(invoiceId<1l){
+            throw new Exception("invoiceId can not be less than 1");
+        }
     }
 }

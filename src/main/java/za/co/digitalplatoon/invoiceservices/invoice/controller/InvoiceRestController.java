@@ -32,7 +32,7 @@ public class InvoiceRestController {
     InvoiceHelper invoiceHelper;
 
     @RequestMapping(value = "/invoices", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public AddInvoiceResponse addInvoice(@RequestBody  AddInvoiceRequest invoice) {
+    public AddInvoiceResponse addInvoice(@RequestBody  AddInvoiceRequest invoice) throws Exception {
         return invoiceHelper.addInvoice(invoice.getInvoice());
     }
 
@@ -42,7 +42,7 @@ public class InvoiceRestController {
     }
 
     @RequestMapping(value = "/invoices/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public DetailedInvoice getInvoices(@RequestParam(value = "invoiceId") long invoiceId) {
+    public DetailedInvoice getInvoices(@RequestParam(value = "invoiceId") long invoiceId)throws Exception {
         return invoiceHelper.getInvoiceById(invoiceId);
     }
 }
